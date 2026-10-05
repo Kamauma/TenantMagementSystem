@@ -35,18 +35,23 @@ class LoginActivity : AppCompatActivity() {
             val email = binding.emailEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString()
 
-            if (email.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty()) {
+                binding.emailEditText.error = "Email is required"
+                return@setOnClickListener
+            }
 
-                Toast.makeText(
-                    this,
-                    "Please enter your email and password",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.emailEditText.error = "Enter a valid email address"
+                return@setOnClickListener
+            }
 
+            if (password.isEmpty()) {
+                binding.passwordEditText.error = "Password is required"
                 return@setOnClickListener
             }
 
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("USER_EMAIL", email)
             startActivity(intent)
             finish()
         }

@@ -17,6 +17,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Welcome user
+        val userEmail = intent.getStringExtra("USER_EMAIL")
+
+        if (!userEmail.isNullOrEmpty()) {
+            Toast.makeText(
+                this,
+                "Welcome, $userEmail!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
         // Save tenant
         binding.saveButton.setOnClickListener {
 
@@ -73,6 +84,8 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
+        // Share tenant
         binding.shareTenantButton.setOnClickListener {
 
             val name = binding.tenantNameEditText.text.toString().trim()
@@ -80,16 +93,18 @@ class MainActivity : AppCompatActivity() {
             val rent = binding.rentEditText.text.toString().trim()
 
             val shareText = """
-        Tenant Name: $name
-        Phone Number: $phone
-        Rent Paid: $rent
-    """.trimIndent()
+                Tenant Name: $name
+                Phone Number: $phone
+                Rent Paid: $rent
+            """.trimIndent()
 
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, shareText)
 
-            startActivity(Intent.createChooser(intent, "Share Tenant"))
+            startActivity(
+                Intent.createChooser(intent, "Share Tenant")
+            )
         }
     }
 }
