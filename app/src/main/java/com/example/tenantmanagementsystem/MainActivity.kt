@@ -1,23 +1,29 @@
 package com.example.tenantmanagementsystem
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.tenantmanagementsystem.databinding.ActivityMainBinding
+import com.example.tenantmanagementsystem.databinding.NavHeaderBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var lastTenant: Tenant? = null
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     companion object {
         private const val TAG = "TENANT_LIFECYCLE"
-        private const val TENANT_NAME = "tenant_name"
-        private const val TENANT_PHONE = "tenant_phone"
-        private const val TENANT_RENT = "tenant_rent"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,109 +33,71 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (savedInstanceState != null) {
-            val name = savedInstanceState.getString(TENANT_NAME)
-            val phone = savedInstanceState.getString(TENANT_PHONE)
-            val rent = savedInstanceState.getString(TENANT_RENT)
+        // Set up the toolbar
+        setSupportActionBar(binding.toolbar)
 
-            if (name != null && phone != null && rent != null) {
-                lastTenant = Tenant(name, phone, rent)
-                binding.tenant = lastTenant
+        // Get the NavController
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+        navController = navHostFragment.navController
+
+        // Configure the app bar and navigation drawer
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.dashboardFragment,
+                R.id.addTenantFragment,
+                R.id.viewTenantsFragment
+            ),
+            binding.drawerLayout
+        )
+
+        setupActionBarWithNavController(
+            navController,
+            appBarConfiguration
+        )
+
+        binding.navView.setupWithNavController(navController)
+
+        // Display the logged-in user's email in the drawer header
+        val headerBinding = NavHeaderBinding.bind(
+            binding.navView.getHeaderView(0)
+        )
+
+        val email = intent.getStringExtra("EMAIL")
+            ?: intent.getStringExtra("USER_EMAIL")
+
+        headerBinding.headerEmailTextView.text =
+            email ?: "Signed in"
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.action_logout) {
+            val intent = Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
+            startActivity(intent)
+            true
+        } else {
+            item.onNavDestinationSelected(navController) ||
+                    super.onOptionsItemSelected(item)
         }
+    }
 
-        val userEmail = intent.getStringExtra("USER_EMAIL")
-        if (!userEmail.isNullOrEmpty()) {
-            Toast.makeText(
-                this,
-                "Welcome, $userEmail!",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        binding.saveButton.setOnClickListener {
-            val name = binding.tenantNameEditText.text.toString().trim()
-            val phone = binding.phoneEditText.text.toString().trim()
-            val rent = binding.rentEditText.text.toString().trim()
-
-            if (name.isEmpty()) {
-                binding.tenantNameEditText.error = "Tenant name is required"
-                return@setOnClickListener
-            }
-
-            lastTenant = Tenant(name, phone, rent)
-            binding.tenant = lastTenant
-
-            binding.tenantNameEditText.text?.clear()
-            binding.phoneEditText.text?.clear()
-            binding.rentEditText.text?.clear()
-
-            Toast.makeText(
-                this,
-                "Tenant saved successfully",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        binding.websiteButton.setOnClickListener {
-            val websiteIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://www.strathmore.edu/")
-            )
-            startActivity(websiteIntent)
-        }
-
-        binding.callTenantButton.setOnClickListener {
-            val phoneNumber = binding.phoneEditText.text.toString().trim()
-
-            if (phoneNumber.isEmpty()) {
-                Toast.makeText(
-                    this,
-                    "Please enter the tenant phone number",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                val callIntent = Intent(
-                    Intent.ACTION_DIAL,
-                    Uri.parse("tel:$phoneNumber")
-                )
-                startActivity(callIntent)
-            }
-        }
-
-        binding.shareTenantButton.setOnClickListener {
-            val tenant = lastTenant
-
-            if (tenant == null) {
-                Toast.makeText(
-                    this,
-                    "Save a tenant first",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                val shareText = tenant.summary()
-
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, shareText)
-                }
-
-                startActivity(
-                    Intent.createChooser(shareIntent, "Share Tenant")
-                )
-            }
-        }
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) ||
+                super.onSupportNavigateUp()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d(TAG, "MainActivity: onSaveInstanceState")
-
-        lastTenant?.let { tenant ->
-            outState.putString(TENANT_NAME, tenant.name)
-            outState.putString(TENANT_PHONE, tenant.phone)
-            outState.putString(TENANT_RENT, tenant.rent)
-        }
     }
 
     override fun onStart() {
