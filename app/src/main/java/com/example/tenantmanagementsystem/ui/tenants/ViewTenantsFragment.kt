@@ -10,16 +10,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.example.tenantmanagementsystem.R
-import com.example.tenantmanagementsystem.data.repository.TenantRepository
 import com.example.tenantmanagementsystem.databinding.FragmentViewTenantsBinding
+import com.example.tenantmanagementsystem.ui.viewmodel.TenantViewModel
 
 class ViewTenantsFragment : Fragment() {
 
     private var _binding: FragmentViewTenantsBinding? = null
     private val binding get() = _binding!!
-
+    private val viewModel: TenantViewModel by activityViewModels()
     private val args: ViewTenantsFragmentArgs by navArgs()
 
     companion object {
@@ -34,7 +35,9 @@ class ViewTenantsFragment : Fragment() {
         Log.d(TAG, "ViewTenantsFragment: onCreateView")
 
         _binding = FragmentViewTenantsBinding.inflate(
-            inflater, container, false
+            inflater,
+            container,
+            false
         )
 
         return binding.root
@@ -46,26 +49,19 @@ class ViewTenantsFragment : Fragment() {
         Log.d(TAG, "ViewTenantsFragment: onViewCreated")
 
         val newTenant = args.newTenant
-        val tenants = TenantRepository.tenants
 
-        val tenantList = if (tenants.isEmpty()) {
-            "No tenants yet. Add one from the Dashboard."
-        } else {
-            tenants.joinToString("\n\n") { it.summary() }
-        }
-
-        binding.tenantListTextView.text = if (newTenant != null) {
-            "Newly added tenant:\n${newTenant.summary()}\n\n" +
-                    "All tenants:\n$tenantList"
-        } else {
-            tenantList
+        viewModel.allTenantsText.observe(viewLifecycleOwner) { text ->
+            binding.tenantListTextView.text =
+                if (newTenant != null) {
+                    "Newly added tenant:\n${newTenant.summary()}\n\nAll tenants:\n$text"
+                } else {
+                    text
+                }
         }
 
         // Call the newly added tenant when one was passed
         if (newTenant != null) {
-            val callButton = binding.root.findViewById<
-                    Button
-                    >(R.id.callButton)
+            val callButton = binding.root.findViewById<Button>(R.id.callButton)
 
             callButton?.setOnClickListener {
                 if (newTenant.phone.isBlank()) {
