@@ -5,14 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.tenantmanagementsystem.data.repository.TenantRepository
-import com.example.tenantmanagementsystem.databinding.FragmentDashboardBinding
 
+import com.example.tenantmanagementsystem.databinding.FragmentDashboardBinding
+import androidx.fragment.app.activityViewModels
+import com.example.tenantmanagementsystem.ui.viewmodel.TenantViewModel
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-
+    
+    private val viewModel: TenantViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,14 +29,10 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tenantCount = TenantRepository.tenants.size
-        val totalRent = TenantRepository.totalRent()
 
-        binding.tenantCountTextView.text =
-            "Tenants\n$tenantCount"
+        binding.viewModel = viewModel
 
-        binding.totalRentTextView.text =
-            "Total rent\nKSh %,.0f".format(totalRent)
+        binding.lifecycleOwner = viewLifecycleOwner
     }
 
     override fun onDestroyView() {
