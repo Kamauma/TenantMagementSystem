@@ -3,9 +3,11 @@
 An Android app (Kotlin) for landlords to record tenants, see the total rent, and call tenants.
 
 ## Download
-Latest APK: RELEASE_LINK (also under **Releases** on the right of this page).
+Latest APK (v1.0): [app-release.apk](https://github.com/Kamauma/TenantMagementSystem/releases/download/v1.0/app-release.apk)
 
-To install: open the link on an Android phone, tap `app-release.apk` under **Assets**, allow installs from this source, then tap **Install**. If Play Protect warns, tap **More details → Install anyway**.
+Release page: [v1.0](https://github.com/Kamauma/TenantMagementSystem/releases/tag/v1.0) (also under **Releases** on the right of this page).
+
+To install: open the APK link on an Android phone to download it, open the downloaded `app-release.apk`, allow installs from this source, then tap **Install**. If Play Protect warns, tap **More details → Install anyway**.
 
 ## Features
 - Register and log in
@@ -41,7 +43,7 @@ Flow of data: Screens -> TenantViewModel (LiveData) -> TenantRepository -> Room 
 | 3 Room             | Tonny Oirere    | 150917        | Room entity, DAO and database                                            | [PR #2](https://github.com/Kamauma/TenantMagementSystem/pull/2)                                                   |
 | 4 Screens          | Ndirangu Sasha  | 168827        | Screens use the ViewModel                                                | [PR #3](https://github.com/Kamauma/TenantMagementSystem/pull/3)                                                   |
 | 5 Data integration | Lysa Munjogu    | 190373        | Tenants saved in Room through the repository                             | [PR #4](https://github.com/Kamauma/TenantMagementSystem/pull/4)                                                   |
-| 6 Release          | Tyron Odhiambo  | 151115        | Version 1.0, README, signed APK, GitHub Release v1.0                     | LINK_6                                                                                                            |
+| 6 Release          | Tyron Odhiambo  | 151115        | Version 1.0, README, signed APK, GitHub Release v1.0                     | [PR #5](https://github.com/Kamauma/TenantMagementSystem/pull/5)                                                   |
 
 ## How we worked with Git
 Each member did one stage on their own branch, opened a pull request, and had it reviewed and merged by a teammate. Nobody pushed straight to `master` except the Lead in Stage 1.
